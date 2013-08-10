@@ -1,0 +1,448 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>Flatbus for GWT documentation</title>
+<style type="text/css">
+body{
+	font-family:Helvetica,Arial,Freesans,Clean,Sans-serif;
+	line-height:1.6;
+}
+
+code{
+	border:silver solid 1px;
+	background-color:ivory;
+	display:block;
+	padding:0em 1em 2em 1em;
+	white-space: pre;
+	margin-bottom:1em;
+}
+
+p code{
+	border:none;
+	background-color:transparent;
+	display:inline;
+	padding:0;
+	margin-bottom:0;
+}
+
+.page{
+	max-width:1200px;
+	min-width:300;
+	margin:0 auto;
+	text-align:justify;
+}
+
+p{
+margin:0 0 1em 0;
+padding:0;
+}
+
+h1{
+	font-size:1.2em;
+}
+
+h2{
+	font-size:1em;
+	margin-top:2em;
+	margin-bottom:0em;
+	padding-bottom:0em;
+}
+
+</style>
+</head>
+<body>
+<div class=page>
+<h1>Flatbus for GWT</h1>
+<p><a href="https://github.com/ggeorgovassilis/flatbus">Flatbus on github</a></p>
+<p>Authors: George Georgovassilis (g.georgovassilis@gmail.com)</p>
+
+<h1>Table of contents</h1>
+<ol>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#quickstart">Quick start</a></li>
+<li><a href="#howitworks">Flatbus in detail</a></li>
+<li><a href="#using">Programming with Flatbus</a></li>
+<li><a href="#testing">Testing</a></li>
+<li><a href="#faq">FAQ &amp; troubleshooting</a></li>
+<li><a href="#changelog">Changelog</a></li>
+</ol>
+
+
+<h1><a name="overview">1. Overview</a></h1>
+<p>Flatbus is an "event" bus for GWT which proxies listeners instead of passing message objects between them. The bus impersonates
+listeners by implementing the same interfaces the listeners do, removing the need for messages. A Flatbus instance implements 
+the interfaces of listeners that are registered with the bus. When a method of such a proxied interface is invoked on the bus
+the bus passes control to the same method of all listeners which implement the same interface also allowing for return values.</p>
+
+
+
+<h1><a name="quickstart">2. Quick start</a></h1>
+<p>
+Let's say you have a listener interface which declares a service for resolving postal codes to place names and some implementation:
+</p>
+<p>
+<code lang="java">
+interface PostalCodeLookupListener extends BusListener{
+
+	String lookupPlaceFor(String postalCode);
+}
+
+class PostalCodeLookupListenerImpl implements PostalCodeLookupListener{
+
+	public String lookupPlaceFor(String postalCode){
+		if (postalCode.equals("1234"))
+			return "Numberland";
+		if (postalCode.equals("0000"))
+			return "Nowhere";
+		return "Unkown";
+	}
+
+}
+</code>	
+</p>
+<p>
+All you need to do is declare a bus interface which extends <code>PostalCodeLookupListener</code> and <code>EventBus</code>:
+</p>
+<code>
+interface MyBus extends EventBus, PostalCodeLookupListener{
+}
+
+...
+
+MyBus bus = GWT.create(MyBus.class);
+</code>
+<p>
+Now you can register any <code>PostalCodeLookupListener</code> instances on the bus:
+</p>
+<code>
+bus.register(new PostalCodeLookupListenerImpl());
+</code>
+<p>
+Talking to those instances through the bus is just as easy:
+</p>
+<code>
+String place = bus.lookupPlaceFor("12345");
+</code>
+<p>
+And in order for all of this to work you need to include the <code>BusGenerator</code> in your GWT module xml:
+</p>
+<code>
+&lt;inherits name='com.bazarooma.flatbus'/&gt;
+</code>
+
+
+
+
+<h1><a name="howitworks">3. Flatbus in detail</a></h1>
+<h2>A messaging bus without messages</h2>
+<p>
+GWT applications organize control flow between their components with 
+<a href="https://developers.google.com/web-toolkit/articles/mvp-architecture">MVP</a> which leads to a clear
+system architecture, isolated components with precisely delineated responsibilities and interfaces. An important side effect
+of the separation of view and control logic is that business logic is unit-testable by means of <a href="http://code.google.com/p/mockito/">mocking</a>
+which in many ways is superior and faster to using the <a href="https://developers.google.com/web-toolkit/doc/1.6/DevGuideTesting">GWTTestcase</a>.
+</p>
+<p>
+Decoupled components obviously share no direct dependencies, but they still need to be able to talk to each other in one or another way.
+This is where the GWT <a href="http://google-web-toolkit.googlecode.com/svn/javadoc/2.1/com/google/gwt/event/shared/EventBus.html">event bus</a>
+comes into play: components register themselves with the event bus and send messages to each others either as clients or as servers.
+In the remainder of this document we'll be referring to them as listeners.</p>
+<p>
+GWT uses messages for communication between interested parties which has its advantages: the message class is the only dependency between
+components and as it usually will be a simple data container changes to it are unlikely to break anything. Messages can be extended or
+altered (i.e. new members) and can be used to communicate asynchronously as they encapsulate the state and possible invocation results on
+listeners.
+</p>
+<p>
+From a programming point of view a message bus comes with one or two nuisances: for every function involved one must declare and implement an interface 
+(or a method on an already existing interface) and create a message (or modify an existing one). Furthermore, refactoring listeners
+does not lead to refactored messages and does not uncover invocation mismatches because there are no direct dependencies between listeners
+anymore.
+</p>
+<p>
+Sometimes one would prefer to not have to worry about where the needed components are instantiated but just have a simple way to talk to
+them, and that is what Flatbus does best: it implements in a single object <i>all</i> listener interfaces and proxies one or many components. 
+This ensures that refactoring will not leave out components (which is as discussed both a benefit and drawback) and removes the hassle of
+writing message classes.
+</p>
+<h2>Setting up a project</h2>
+<p>
+The flatbus-lib itself has no other dependencies than gwt-dev, thus including the <code>flatbus-lib.jar</code> and
+<code>flatbus-lib-sources.jar</code> for the GWT compiler in the project dependencies is enough. Also, flatbus
+must be activated in your project's gwt module xml:</p>
+
+<code>
+&lt;inherits name='com.bazarooma.flatbus'/&gt;
+</code>
+<p>
+Maven users have to set up a private repository with the Flatbus jar and then can add the dependency:
+</p>
+<code>
+&lt;dependency&gt;
+	&lt;groupId&gt;com.bazarooma.flatbus&lt;/groupId&gt;
+	&lt;artifactId&gt;flatbus-project&lt;/artifactId&gt;
+	&lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+&lt;/dependency&gt;
+</code>
+<h2>Details of the BusGenerator</h2>
+<p>
+The library provides the <code>BusGenerator</code>, a GWT source code generator which is activated when
+<code>GWT.create(MyBus.class)</code> is called with a class that implements <code>EventBus</code> and
+other <code>BusListener</code> interfaces. The generator will generate a bus implementation which can
+manage all listeners which have interfaces extended by <code>MyBus</code>. The generated class has all methods declared
+on <code>MyBus</code> and thus all methods declared by client interfaces. When such a method is invoked on the bus,
+it will iterate through all registered listeners that implement that method of the specified interface and invoke them one after another.
+</p>
+
+
+
+
+<h1><a name="using">4. Programming with Flatbus</a></h1>
+<p>
+In a nut shell, Flatbus does three simple things:
+</p>
+<ul>
+<li>It removes the need for a component to know where to find another component it depends on</li>
+<li>It allows direct method invocation of a listener's interface on the bus because the bus proxies the listener</li>
+<li>It handles "broadcasting" invocations to multiple listeners</li>
+</ul>
+<h2>Listeners</h2>
+<p>
+In a traditional messaging bus listeners are components which receive messages send by clients through the bus to them. For a Flatbus listener
+implements an interface derived from <code>BusClient</code> which is also implemented by the bus. A component that wishes to
+communicate with one or more of the listeners registered with the bus needs a reference only to the bus. It then can cast the bus to the
+listener's interface and directly invoke a listener method on that bus.
+</p>
+<p>The first step is declaring a listener interface which must extend <code>BusClient</code> and declare all methods it would
+like to expose as public functionality to other components over the bus. There are no restrictions as to the method names, arguments
+and return types (void, primitives, object, collections, arrays...). For example:
+</p>
+<code>
+interface PostalCodeLookupListener extends BusListener{
+	String lookupPlaceFor(String postalCode);
+}
+</code>
+<p>
+You'll also need an implementation. It is possible to have multiple implementations of the listener interface, also an implementation 
+can implement multiple listener interfaces.
+</p>
+<code>
+class PostalCodeLookupListenerImpl implements PostalCodeLookupListener{
+	public String lookupPlaceFor(String postalCode){
+		...
+		return ...;
+	}
+}
+</code>
+<p>
+After you have declared all listener interfaces you need to declare the bus interface which must extend <code>EventBus</code> and all
+listener interfaces it should proxy. Make sure to not declare any other methods on the bus interface since the generated bus won't know how
+to implement them.
+</p>
+<code>
+interface MyBus extends EventBus, PostalCodeLookupListener, ...{ 
+}
+</code>
+<p>
+A bus is then instantiated as follows, where it is possible to instantiate more than one buses:
+</p>
+<code>
+MyBus bus = GWT.create(MyBus.class);
+</code>
+<p>
+After registering a listener instance on the bus it will be able to receive method invocations. Unregistering it will cease method
+invocation from the bus.
+</p>
+<code>
+PostalCodeLookupListener listener = new PostalCodeLookupListenerImpl();
+
+bus.register(listener);
+</code>
+<code>
+bus.unregister(listener);
+</code>
+
+<h2>Invoking listeners</h2>
+<p>
+A Flatbus implements all listener interfaces, thus invoking a listener method goes through invoking that method on the bus instance: 
+</p>
+<code>
+String place = bus.lookupPlaceFor("1234");
+Window.alert(place);
+</code>
+<p>
+When more than one <code>PostalCodeLookupListener</code>s instances were registered with the bus and the invoked method returns
+a value, then only the value of the first method invocation is returned although all listeners are still being invoked. All return values
+can be accessed by chaining the <code>all</code> or <code>allWithValues</code> methods where the first returns all invocation
+values as returned by the listener methods while the later filters out null return values.
+</p>
+<code>
+List&lt;String&gt; places = bus.all(bus.lookupPlaceFor("1234"));
+</code>
+<p>
+A listener can abort the invocation similar to canceling an event with the traditional GWT event bus, but it requires a reference to the
+bus to do that.
+</p>
+<code>
+public class PostalCodeLookupListenerImpl implements PostalCodeLookupListener{
+	
+	private MyEventBus bus;
+	
+	public PostalCodeLookupListenerImpl(MyEventBus bus){
+		this.bus = bus;
+	}
+	
+	@Override
+	public String lookupPlaceFor(String postalCode){
+		if (postalCode.startsWith("99")){
+			bus.cancelCurrentEvent();		
+			return "Point of no return";
+		}
+		return null;
+	}
+}
+</code>
+<h1><a name="testing">5. Testing</a></h1>
+<p>Flatbus can be used without restrictions with Selenium type integration tests, <code>GWTTestCase</code> unit tests or
+pure unit tests which mock GWT dependencies. Examples for the latter two cases can be found in the <code>flatbus-test</code> project.
+</p>
+<h2>Unit testing with GWTTestCase</h2>
+<code>
+public class Tests extends GWTTestCase{
+
+	protected PostalCodeLookupService postalCodesInCountryA;
+	protected MyEventBus eventBus;
+
+	@Override
+	public String getModuleName() {
+		return "my.project.Tests";
+	}
+
+	@Override
+	public void gwtSetUp(){
+		eventBus = GWT.create(MyEventBus.class);
+		postalCodesInCountryA = new PostalCodeLookupServiceImpl(...);
+		eventBus.register(postalCodesInCountryA);
+	}
+
+	public void testPostalCodes() {
+		String result = eventBus.lookupPlaceFor("75018");
+		assertEquals("Paris", result);
+	}
+}
+</code>
+<h2>Unit testing with mocking</h2>
+<p>When mocking GWT dependencies one wants to avoid instantiating the complete GWT browser environment of a <code>GWTTestCase</code>.
+Since <code>GWT.create</code> is not available in that stripped-down unit test a different implementation can be used instead:
+<code>ServerEventBus</code>.
+</p>
+<code>
+public class Tests{
+
+	protected PostalCodeLookupService postalCodesInCountryA;
+	protected MyEventBus eventBus;
+
+	@Before
+	@Override
+	public void setup(){
+		ServerEventBusFactory factory = new ServerEventBusFactory();
+		bus = factory.createAndProxy(MyEventBus.class);
+		postalCodesInCountryA = new PostalCodeLookupServiceImpl(...);
+		eventBus.register(postalCodesInCountryA);
+	}
+
+	public void testPostalCodes() {
+		String result = eventBus.lookupPlaceFor("75018");
+		assertEquals("Paris", result);
+	}
+}
+</code>
+
+<h1><a name="faq">6. FAQ &amp; troubleshooting</a></h1>
+<h2>Why interfaces and not annotations?</h2>
+<p>The IDE refactoring tools currently available handle annotations badly and specifically won't raise errors when a method mismatch
+arises as the result of a code modification. This would result in an error condition at run time which for many development purposes is
+too late. Furthermore, we wanted to be able to test mocked implementations of both the bus and listeners which is difficult with
+annotations.</p>
+<h2>What happens when a listener throws an exception?</h2>
+<p>All listeners following the failed listener will still be invoked. The exception thrown will be collected together with any other
+exceptions in an <code>UmbrellaException</code> and thrown after all listeners have been invoked.
+<h2>What happens when no listener is registered for a method invocation?</h2>
+<p>If the method is declared to not return a value (<code>void</code>) then nothing will happen. If the method
+declares a return value then an exception is thrown because the Flatbus wouldn't know what value to return.
+</p>
+<h2>Method invocations on the bus are synchronous/blocking, right?</h2>
+<p>
+Yes. When a method on the bus is called then all listeners are processed before the control returns to the caller.
+</p>
+<h2>Recursive/cascading invocations: What happens when a listener which is currently being invoked by the bus calls the bus again?</h2>
+<p>
+Actually nothing spectacular happens, this is quite intuitive. Assuming the following listeners with their methods:</p>
+<code>
+A.ma(...){
+	...
+	bus.mb(...);
+};
+
+B.mb(...){
+	...
+}
+</code>
+<p>and the event bus which implements <code>A.ma</code> and <code>B.mb</code>, when <code>bus.ma</code>
+is invoked which in turn invokes <code>bus.mb</code> then calls are processed in a stack. This means that <code>bus.mb</code>
+is processed first and afterwards the control is returned to <code>A.ma</code>.
+</p>
+<h2>How are listeners processed which are registered or unregistered on the bus during an invocation?</h2>
+<p>
+When a listener registers or unregisters during an invocation an other listeners L then this change does not affect the current invocation:
+Registering L during the invocation will not get it invoked and unregistering L will now save it from being invoked either.
+The best way to understand the invocation process is to describe what the implementation does: when a listener method is invoked on the
+bus it determines at that point all eligible listeners and creates an invocation schedule. Any listeners that are added or removed
+during the invocation will not affect that schedule, but they will affect new schedules (even recursive ones caused by the current invocation).
+</p>
+<h2>Are there restrictions on what listener methods can be?</h2>
+<p>
+There hardly are any relevant restrictions on listener methods with the notable exception that since the generated bus implementation
+implements <i>all</i> listener interfaces it is not clear what should happen when two interfaces declare the same method. While this
+would be a single invocation method on the bus, it is unclear which type of listeners should process that invocation. Ie:
+</p>
+<code>
+interface Listener1 extends BusListener{
+	void someMethod();
+} 
+
+interface Listener2 extends BusListener{
+	void someMethod();
+} 
+
+interface MyBus extends Listener1, Listener2, EventBus{
+}
+
+...
+
+MyBus bus = GWT.create(MyBus.class);
+
+bus.someMethod(); // &lt;-- is that Listener1.someMethod or Listener2.someMethod ?
+</code>
+<h2>Can there be more than one implementation of a listener interface?</h2>
+<p>
+As many as you'd like.
+</p>
+<h2>Can multiple instances of a listener register with the event bus?</h2>
+<p>
+Yes, and they will be all invoked when their declared method is invoked on the bus. The normal method invocation on the bus will 
+return only the first invocation result, in conjunction with the <code>all</code> or 
+<code>allWithValues</code> methods it will return a list with all invocation values.
+</p>
+
+
+
+<h1><a name="changelog">7. Changelog</a></h1>
+<dl>
+<dt>1.0</dt>
+<dd>Initial release</dd>
+</dl>
+
+</div>
+</body>
+</html>

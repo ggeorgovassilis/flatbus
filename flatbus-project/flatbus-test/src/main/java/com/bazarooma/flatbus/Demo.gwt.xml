@@ -1,0 +1,6 @@
+<module>
+    <inherits name='com.google.gwt.user.User' />
+    <inherits name='com.bazarooma.flatbus'/>
+    <entry-point class="com.bazarooma.flatbus.demo.DemoApplication"/>
+    <source path='demo'/>
+</module>

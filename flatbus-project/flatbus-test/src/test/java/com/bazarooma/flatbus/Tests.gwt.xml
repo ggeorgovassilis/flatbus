@@ -1,0 +1,6 @@
+<module>
+    <inherits name='com.google.gwt.core.Core' />
+    <inherits name='com.bazarooma.flatbus'/>
+    <entry-point class="com.bazarooma.flatbus.test.Tests"/>
+    <source path='test'/>
+</module>
