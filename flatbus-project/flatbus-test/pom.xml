@@ -21,7 +21,7 @@
 	</parent>
 
 	<artifactId>flatbus-test</artifactId>
-	<packaging>jar</packaging>
+	<packaging>war</packaging>
 
 	<name>${project.artifactId}</name>
 
