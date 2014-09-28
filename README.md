@@ -115,13 +115,23 @@ must be activated in your project's gwt module xml:
 <inherits name='com.bazarooma.flatbus'/>
 ```
 
-Maven users have to set up a private repository with the Flatbus jar and then can add the dependency:
+Maven users will have to download the projects and compile them in order to get the `flatbus-lib` artifact, or use the git hosted repository:
 
 ```xml
+<repository>
+	<id>flatbus</id>
+	<url>https://raw.githubusercontent.com/ggeorgovassilis/flatbus/gh-pages/</url>
+	<snapshots>
+		<enabled>true</enabled>
+	</snapshots>
+</repository>
+
+...
+
 <dependency>
 	<groupId>com.bazarooma.flatbus</groupId>
 	<artifactId>flatbus-project</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.1-SNAPSHOT</version>
 </dependency>
 ```
 
