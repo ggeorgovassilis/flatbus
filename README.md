@@ -16,10 +16,10 @@ Authors: George Georgovassilis (g.georgovassilis@gmail.com)
 
 # <a name="overview">1. Overview</a>
 
-Flatbus is an "event" bus for GWT which proxies listeners instead of passing message objects between them. The bus impersonates
-listeners by implementing the same interfaces the listeners do, removing the need for messages. A Flatbus instance implements 
-the interfaces of listeners that are registered with the bus. When a method of such a proxied interface is invoked on the bus
-the bus passes control to the same method of all listeners which implement the same interface also allowing for return values.
+Flatbus is an "event" bus for GWT which proxies listeners instead of passing message objects between them, essentially doing away with messages
+as both a concept or implementation. The bus impersonates listeners by implementing the same interfaces the listeners do, removing the need for 
+messages. A Flatbus instance implements the interfaces of listeners that are registered with the bus. When a method of such a proxied interface 
+is invoked on the bus the bus passes control to the same method of all listeners which implement the same interface also allowing for return values.
 
 Flatbus is available under the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.html) 
 
@@ -67,13 +67,13 @@ Talking to those instances through the bus is just as easy:
 
 ```java
 String place = bus.lookupPlaceFor("12345");
-`
+```
 
 And in order for all of this to work you need to include the `BusGenerator` in your GWT module xml:
 
 ```xml
 <inherits name='com.bazarooma.flatbus'/>
-`
+```
 
 # <a name="howitworks">3. Flatbus in detail</a>
 
