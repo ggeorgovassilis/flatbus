@@ -22,6 +22,12 @@ import com.bazarooma.flatbus.test.uppercaseservice.UpperCaseServiceImpl;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.junit.client.GWTTestCase;
 
+/**
+ * Registry of all tests that need to run 
+ * @author george georgovassilis
+ * 
+ */
+
 public class Tests extends GWTTestCase{
 
 	protected OurEventBus eventBus;

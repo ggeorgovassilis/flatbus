@@ -2,6 +2,13 @@ package com.bazarooma.flatbus.test.mathservice;
 
 import java.util.Arrays;
 
+/**
+ * 
+ * Implementation of the math service
+ * @author george georgovassilis
+ * 
+ */
+
 public class MathServiceImpl implements MathService{
 
 	@Override

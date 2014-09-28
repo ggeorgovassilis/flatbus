@@ -16,7 +16,7 @@
 	<parent>
 		<groupId>com.bazarooma.flatbus</groupId>
 		<artifactId>flatbus-project</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<version>1.1-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 
@@ -30,7 +30,7 @@
 			<groupId>com.bazarooma.flatbus</groupId>
 			<artifactId>flatbus-lib</artifactId>
 			<scope>provided</scope>
-			<version>1.0-SNAPSHOT</version>
+			<version>${flatbus.version}</version>
 		</dependency>
 
 		<dependency>
@@ -91,7 +91,6 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>gwt-maven-plugin</artifactId>
-
 				<configuration>
 					<gen>${project.build.directory}/.generated</gen>
 					<logLevel>INFO</logLevel>

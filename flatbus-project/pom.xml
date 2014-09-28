@@ -15,15 +15,16 @@
 
 	<groupId>com.bazarooma.flatbus</groupId>
 	<artifactId>flatbus-project</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>${project.artifactId}</name>
 	<description>Flatbus is an (event)bus for GWT that losely couples listeners together over a bus via interfaces instead of events</description>
 
 	<properties>
-		<gwt.version>2.5.1</gwt.version>
+		<gwt.version>2.6.1</gwt.version>
 		<webAppDirectory>target/war</webAppDirectory>
+		<flatbus.version>${project.version}</flatbus.version>
 	</properties>
 
 	<url>http://flatbus.github.com</url>
@@ -58,7 +59,7 @@
 		<developer>
 			<id>ggeorgovassilis</id>
 			<name>George Georgovassilis</name>
-			<email>g.georgovassilis@gmail.com</email>
+			<email>george@bazarooma.com</email>
 		</developer>
 	</developers>
 
@@ -85,8 +86,8 @@
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>3.1</version>
 					<configuration>
-						<source>1.6</source>
-						<target>1.6</target>
+						<source>1.7</source>
+						<target>1.7</target>
 						<generateDirectory>${project.build.directory}/generated-sources/gwt</generateDirectory>
 					</configuration>
 				</plugin>

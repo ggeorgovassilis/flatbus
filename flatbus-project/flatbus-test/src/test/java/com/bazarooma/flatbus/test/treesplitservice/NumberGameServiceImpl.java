@@ -2,6 +2,13 @@ package com.bazarooma.flatbus.test.treesplitservice;
 
 import com.bazarooma.flatbus.test.OurEventBus;
 
+/**
+ * 
+ * Implementation of the number game service. Used to test that events are cancelled properly
+ * @author george georgovassilis
+ * 
+ */
+
 public class NumberGameServiceImpl implements NumberGameService{
 
 	private OurEventBus eventBus;

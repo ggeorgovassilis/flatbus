@@ -1,5 +1,12 @@
 package com.bazarooma.flatbus.test.addressservice;
 
+/**
+ * 
+ * Models a simple address entity
+ * @author george georgovassilis
+ * 
+ */
+
 public class Address {
 
 	private String postalCode;

@@ -1,5 +1,12 @@
 package com.bazarooma.flatbus.test.mathservice;
 
+/**
+ * 
+ * A faulty implementation of the math service
+ * @author george georgovassilis
+ * 
+ */
+
 public class BrokenMathServiceImpl implements MathService{
 
 	@Override

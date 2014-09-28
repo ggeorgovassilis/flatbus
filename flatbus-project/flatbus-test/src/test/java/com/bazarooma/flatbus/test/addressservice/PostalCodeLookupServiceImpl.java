@@ -5,6 +5,13 @@ import java.util.Map;
 
 import com.bazarooma.flatbus.shared.EventBus;
 
+/**
+ * 
+ * Synchronous implementation of the postal code lookup service
+ * @author george georgovassilis
+ * 
+ */
+
 public class PostalCodeLookupServiceImpl implements PostalCodeLookupService {
 
 	private Map<String, Address> codesToPlaces = new HashMap<String, Address>();

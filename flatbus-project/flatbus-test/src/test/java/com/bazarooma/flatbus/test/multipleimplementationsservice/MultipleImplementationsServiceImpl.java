@@ -4,6 +4,13 @@ import com.bazarooma.flatbus.test.Log;
 import com.bazarooma.flatbus.test.mathservice.MathService;
 import com.bazarooma.flatbus.test.uppercaseservice.UpperCaseService;
 
+/**
+ * 
+ * A class that implements multiple service interfaces and thus consumes multiple events
+ * @author george georgovassilis
+ * 
+ */
+
 public class MultipleImplementationsServiceImpl implements MathService, UpperCaseService{
 
 	@Override

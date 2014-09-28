@@ -7,6 +7,12 @@ import com.bazarooma.flatbus.demo.domain.Product;
 import com.bazarooma.flatbus.demo.domain.ValidationMessage;
 import com.google.gwt.user.client.ui.IsWidget;
 
+/**
+ * Widget that shows an entry in an order list
+ * @author george georgovassilis
+ * 
+ */
+
 public interface IItemWidget extends IsWidget, OrderListener, ValidationMessagesListener{
 
 	Item getValue();

@@ -9,7 +9,7 @@ import com.bazarooma.flatbus.shared.BusListener;
  * 3. if N is 2 or 0 return 0
  * 4. else, divide it into two equal parts A B. For odd N round A up and B down.
  * 5. return game(A) + game(B)
- * @author ggeorgovassilis
+ * @author george georgovassilis
  *
  */
 public interface NumberGameService extends BusListener{

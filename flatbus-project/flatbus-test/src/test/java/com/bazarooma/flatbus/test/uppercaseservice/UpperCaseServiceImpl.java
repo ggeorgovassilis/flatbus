@@ -1,5 +1,12 @@
 package com.bazarooma.flatbus.test.uppercaseservice;
 
+/**
+ * 
+ * Implementation of the upepr case service
+ * @author george georgovassilis
+ * 
+ */
+
 public class UpperCaseServiceImpl implements UpperCaseService{
 
 	@Override
